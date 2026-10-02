@@ -1,0 +1,30 @@
+services:
+
+  postgres:
+    image: postgres:18
+    container_name: ecommerce-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Ecommerce@123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  api:
+    image: ecommerce-api:1.0
+    container_name: ecommerce-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:Ecommerce%40123@postgres:5432/ecommerce_db"
+      JWT_SECRET: "ecommerce_api_secret_2026"
+      PORT: 3000
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

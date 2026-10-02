@@ -1,0 +1,96 @@
+// Prisma schema cho hệ thống E-commerce
+
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+}
+
+// =========================
+// ROLE
+// =========================
+model Role {
+  roleid   Int    @id
+  rolename String @db.VarChar(50)
+
+  users User[]
+}
+
+// =========================
+// MEMBERSHIP
+// =========================
+model MemberShip {
+  mid   Int    @id
+  mname String @db.VarChar(50)
+  score Int
+
+  users User[]
+}
+
+// =========================
+// USER
+// =========================
+model User {
+  uid      Int    @id
+  username String @db.VarChar(50)
+  fullname String @db.VarChar(100)
+  password String @db.VarChar(255)
+  roleid   Int
+  mid      Int
+
+  role       Role       @relation(fields: [roleid], references: [roleid])
+  membership MemberShip @relation(fields: [mid], references: [mid])
+  orders     Order[]
+}
+
+// =========================
+// ORDER
+// =========================
+model Order {
+  oid      Int      @id
+  uid      Int
+  createat DateTime
+
+  user          User          @relation(fields: [uid], references: [uid])
+  shipments     Shipment[]
+  order_details OrderDetail[]
+}
+
+// =========================
+// SHIPMENT
+// =========================
+model Shipment {
+  shipid Int    @id
+  oid    Int
+  status String @db.VarChar(50)
+
+  order Order @relation(fields: [oid], references: [oid])
+}
+
+// =========================
+// PRODUCT
+// =========================
+model Product {
+  pid      Int     @id
+  pname    String  @db.VarChar(100)
+  price    Decimal @db.Decimal(10, 2)
+  quantity Int
+
+  order_details OrderDetail[]
+}
+
+// =========================
+// ORDER DETAIL
+// =========================
+model OrderDetail {
+  oid        Int
+  pid        Int
+  qty        Int
+  unit_price Decimal @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [oid], references: [oid])
+  product Product @relation(fields: [pid], references: [pid])
+
+  @@id([oid, pid])
+}
